@@ -42,3 +42,42 @@ listDatasets(ensembl, verbose = TRUE)
 
 #Load the dataset of choice and collect gene names from homo sapiens dataset
 mart <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL", dataset = "hsapiens_gene_ensembl", host = "ensembl.org")
+
+# 8. Extract the targeted transcripts
+
+#Extract data from the hsapiens_gene_ensembl dataset via BioMart and get a list of transcripts.
+#We have the access to the genomic data for hsapiens_gene_ensembl provided by BioMart.
+#add genes names into the table
+t2g <- biomaRt::getBM(
+  attributes = c("ensembl_transcript_id", 
+                 "transcript_version", 
+                 "ensembl_gene_id",
+                 "external_gene_name",
+                 "description",
+                 "transcript_biotype"), mart = mart)
+
+#Renaming table for sleuth analysis
+#Combine two columns (ensembl_transcript_id and transcript_version) both separate by "." into one column called "target_id
+t2g <- dplyr::mutate(t2g, target_id = paste(ensembl_transcript_id, transcript_version, sep = "."))
+
+
+
+#Rename the table into three column such as target_id, Geneid and Gene_Name.
+t2g <- dplyr::select(t2g, target_id, Geneid = ensembl_gene_id, Gene_Name = external_gene_name)
+
+#Check the table "t2g" contains 'ens_gene'(Ensembl gene names) and target_id (associated transcripts from Ensembl).
+head(t2g)
+
+#reorder the columns
+colnames(t2g) #Get column names
+
+t2g <- t2g[, c(2, 3, 1)] # second column be the 1st, 3rd column be the 2nd and 1st column be the 3rd
+head(t2g)
+
+
+#merge two columns (counts and gene annotation table)
+
+#counts1 <- merge(counts1,t2g, by="Geneid")
+#head(counts1)
+#dim(counts1)
+
