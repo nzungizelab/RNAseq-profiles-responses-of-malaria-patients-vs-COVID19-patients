@@ -81,3 +81,19 @@ head(t2g)
 #head(counts1)
 #dim(counts1)
 
+
+# Import information about sample genotypes and conditions 
+expdesign <- read.table("expdesign1.txt", header=T)
+
+head(expdesign, n = 15)
+
+dim(expdesign)
+
+
+#check the experiment group we have
+
+groups <- paste(expdesign$condition, expdesign$status, sep=".")
+
+groups <- factor(groups) #group	vector containing the experimental group/condition for each sample(library)
+
+table(groups) 
