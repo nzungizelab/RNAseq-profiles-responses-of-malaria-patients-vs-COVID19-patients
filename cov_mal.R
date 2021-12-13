@@ -97,3 +97,60 @@ groups <- paste(expdesign$condition, expdesign$status, sep=".")
 groups <- factor(groups) #group	vector containing the experimental group/condition for each sample(library)
 
 table(groups) 
+
+# 3. load required libraries
+library("DESeq2")
+library("edgeR")
+library("limma")
+library("ggplot2")
+library("gplots")
+library("RColorBrewer")
+library("NMF")
+library("EnhancedVolcano")
+library("Rcpp")
+library("pheatmap")
+
+# let's get rid of some lowly expressed genes
+#data_subset <- counts1[rowSums(counts1)>10,]
+#dim(data_subset)
+
+
+
+# Converting counts to DGEList object
+
+class(counts1) #checking if is data frame
+
+counts1 <- as.matrix(counts1) #convert df to matrix
+
+y <- DGEList(counts1, samples=expdesign, group=expdesign$condition)
+
+head(y)
+#table(y)
+
+#d <- DGEList(counts = data_subset, group=groups)
+#head(d)
+
+
+# 4. Filtering data
+#using edgeR the raw counts are converted to CPM and log-CPM values using the cpm function.
+#By default in edgeR, a gene should have CPM > 0.5 in at least 3 samples in opposite condition, the gene is removed
+
+dim(y) #Checking before filtering step
+#[1] 60664    13
+
+keep <- rowSums(cpm(y) > 0.5) >= 2 #Identify genes with at least 0.5 cpm in at least 2 samples
+
+table(keep)
+
+y_filtered <- y[keep, , keep.lib.sizes = FALSE]
+
+
+#data_subset1 <- cpm(counts1) #Calculate the Counts Per Million measure
+#dim(data_subset1)
+
+
+head(y_filtered)
+
+
+dim(y_filtered) #Checking after filtering step
+#[1] 31154    13
