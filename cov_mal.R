@@ -171,8 +171,9 @@ rownames(cov_mal_data) <- rnames                  # assign row names
 #Customizing and plotting the heat map
 
 # creates a own color palette from red to green
-my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 62)
-my_palette
+#my_palette <- colorRampPalette(c("red", "yellow", "darkgreen"))(n = 62) #"red","yellow","green"
+
+my_palette <-colorRampPalette(brewer.pal(3,"RdBu"))(61)
 
 # (optional) defines the color breaks manually for a "skewed" color transition
 col_breaks = c(seq(-1,0,length=100),  # for red
@@ -186,9 +187,12 @@ png(paste0(outpath,"heatmap.png"), # create and save PNG for the heat map
     res = 300,            # 300 pixels per inch
     pointsize = 8)        # smaller font size
 
+# Heatmap performs reordering using clusterization
 heatmap.2(cov_mal_data,
           #cellnote = cov_mal_data,  # same data set for cell labels
-          main = "Overlapped genes expressed", # heat map title
+          #main = "Overlapped genes expressed", # heat map title
+          #xlab="samples with infections", 
+          ylab="Overlapped genes expressed", 
           notecol = "black",      # change font color of cell labels to black
           density.info="none",  # turns off density plot inside color legend
           trace="none",         # turns off trace lines inside the heat map
@@ -196,7 +200,15 @@ heatmap.2(cov_mal_data,
           col=my_palette,       # use on color palette defined earlier
           #breaks=col_breaks,    # enable color transition at specified limits
           dendrogram= "row",     # only draw a row dendrogram
-          Colv= "NA")            # turn off column clustering
+          #dendrogram="both",
+          #Colv = FALSE, 
+          #scale = "none",
+          scale = "row",  # #scale by row
+          #scale = "column",
+          #key.xlab = "Abundance",
+          #Rowv = TRUE,
+          Colv= "NA"  # turn off column clustering
+          )            
 
 dev.off()               # close the PNG device
 
