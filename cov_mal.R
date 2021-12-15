@@ -171,7 +171,8 @@ rownames(cov_mal_data) <- rnames                  # assign row names
 #Customizing and plotting the heat map
 
 # creates a own color palette from red to green
-my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 61)
+my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 62)
+my_palette
 
 # (optional) defines the color breaks manually for a "skewed" color transition
 col_breaks = c(seq(-1,0,length=100),  # for red
