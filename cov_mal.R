@@ -156,6 +156,132 @@ dim(y_filtered) #Checking after filtering step
 #[1] 31154    13
 
 
+#among various normalisation methods (TMM, BH, RLE, upperquartile UQ) we will use  TMM 
+
+#These normalization are performed using either DESeq (RLE) or edgeR (TC, RPKM, UQ, TMM).
+
+#TMM: estimating relative RNA production levels from RNA-seq data
+y_filtered <- calcNormFactors(y_filtered, method="TMM")  #Calculate Normalization Factors to Align Columns of a Count Matrix 
+
+head(y_filtered$samples, n=15)
+
+
+#design matrix
+design <- model.matrix(~0+groups)
+
+
+colnames(design) <- levels(groups)
+
+design
+
+
+y_filtered <- estimateDisp(y_filtered, design, robust=TRUE)
+
+y_filtered$common.dispersion
+#[1] 0.5400794
+
+#edgeR uses the Cox-Reid profile-adjusted likelihood method in estimating dispersion
+y_filtered <- estimateCommonDisp(y_filtered,verbose=TRUE)
+#Disp = 0.51809 , BCV = 0.7198 
+
+
+
+fit <- glmQLFit(y_filtered, design, robust=TRUE) #estimated values of the GLM coefficients for each gene.
+
+head(fit$coefficients)
+
+summary(fit$df.prior)
+
+
+COVID19vsHealthy <- makeContrasts( COVID19.patient-Healthy.donor, levels=design)
+
+MalariavsHealthy <- makeContrasts( Malaria.patient-Healthy.donor, levels=design)
+
+COVID19vsMalaria <- makeContrasts( COVID19.patient-Malaria.patient, levels=design)
+
+
+#DE in each group using the QL F-test.
+
+#DE in Covid19 patient
+COVID19vsHealthy_Tab1 <- glmQLFTest(fit, contrast=COVID19vsHealthy, coef = 2)
+
+
+topTags(COVID19vsHealthy_Tab1, n= 5) # table of top 5 DEG
+
+COVID19vsHealthy_top.gene <- topTags(COVID19vsHealthy_Tab1)  # table of top DEG
+COVID19vsHealthy_top.gene
+
+
+
+
+COVID19vsHealthy_de <- decideTestsDGE(COVID19vsHealthy_Tab1, p.value=0.01) # pvalue using Wald test method
+
+
+summary(COVID19vsHealthy_de) 
+# Down o gene and Up 0 gene
+
+# adjust p-values and assign the result to our table
+#we consider a fraction of 10% false positives acceptable, therefore all genes with an adjusted p value below 10% = 0.1 as significant. 
+COVID19vsHealthy_Tab1$table$padj <- p.adjust(COVID19vsHealthy_Tab1$table$PValue, method="BH")
+
+sum(COVID19vsHealthy_Tab1$table$padj < 0.1)
+# 0 gene
+
+head(COVID19vsHealthy_Tab1$table$padj)
+
+topTags(COVID19vsHealthy_Tab1)
+
+
+
+# highlight DE genes in orange
+points(COVID19vsHealthy_Tab1$table$logCPM[COVID19vsHealthy_de], COVID19vsHealthy_Tab1$table$logFC[COVID19vsHealthy_de], col="orange")
+
+
+
+# How many genes look significant?
+sum(COVID19vsHealthy_Tab1$table$PValue < 0.01)
+# 2866 genes
+
+sum(COVID19vsHealthy_Tab1$table$padj < 0.1)
+# padj < 0.01 = 0 genes;  padj < 0.1 = 2495
+
+
+# How many genes show 2-fold enrichment?
+sum(COVID19vsHealthy_Tab1$table$PValue < 0.01 & COVID19vsHealthy_Tab1$table$logFC > 1)
+#251 genes
+
+sum(COVID19vsHealthy_Tab1$table$padj < 0.1 & COVID19vsHealthy_Tab1$table$logFC > 1)
+# # padj < 0.01 = 0 genes;  padj < 0.1 = 188
+
+
+#DE in Malaria infection 
+MalariavsHealthy_Tab2 <- glmQLFTest(fit, contrast=MalariavsHealthy, coef = 2)
+
+topTags(MalariavsHealthy_Tab2, n= 5) # table of top 5 DEG
+
+MalariavsHealthy_top.gene <- topTags(MalariavsHealthy_Tab2)  # table of top DEG
+MalariavsHealthy_top.gene
+
+MalariavsHealthy_de <- decideTestsDGE(MalariavsHealthy_Tab2, p.value=0.01) 
+
+
+summary(MalariavsHealthy_de) 
+#Down 172 genes and Up 9 genes
+
+# adjust p-values and assign the result to our table
+MalariavsHealthy_Tab2$table$padj <- p.adjust(MalariavsHealthy_Tab2$table$PValue, method="BH")
+
+sum(MalariavsHealthy_Tab2$table$padj < 0.1)
+#padj < 0.01 = 181 genes;  padj < 0.1 = 1084 genes
+
+head(MalariavsHealthy_Tab2$table$padj)
+
+topTags(MalariavsHealthy_Tab2)
+
+
+
+
+
 
 ## Heatmap for Tab3_overlap
 
