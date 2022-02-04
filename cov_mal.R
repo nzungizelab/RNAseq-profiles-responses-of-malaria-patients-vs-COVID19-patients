@@ -278,11 +278,6 @@ head(MalariavsHealthy_Tab2$table$padj)
 
 topTags(MalariavsHealthy_Tab2)
 
-
-
-
-
-
 ## Heatmap for Tab3_overlap
 
 library(gplots)
