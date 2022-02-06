@@ -313,21 +313,25 @@ heatmap.2(cov_mal_data,
           #cellnote = cov_mal_data,  # same data set for cell labels
           #main = "Overlapped genes expressed", # heat map title
           #xlab="samples with infections", 
-          ylab="Overlapped genes expressed", 
+          #ylab="Overlapped genes expressed", 
           notecol = "black",      # change font color of cell labels to black
           density.info="none",  # turns off density plot inside color legend
           trace="none",         # turns off trace lines inside the heat map
-          margins = c(12,10),     # widens margins around plot
+          margins = c(7,10),     # widens margins around plot #c(12,10)
+          lwid = c(0.2,4),       # c(0.2,5)
+          lhei = c(0.2,8),         #c(0.2,5)
           col=my_palette,       # use on color palette defined earlier
           #breaks=col_breaks,    # enable color transition at specified limits
           dendrogram= "row",     # only draw a row dendrogram
           #dendrogram="both",
           #Colv = FALSE, 
           #scale = "none",
-          scale = "row",  # #scale by row
-          #scale = "column",
+          #scale = "row",  # #scale by row
+          scale = "column",
           #key.xlab = "Abundance",
-          #Rowv = TRUE,
+          Rowv = TRUE,  #TRUE or NA
+          #cexRow = 2,
+          #cexCol = 2,
           Colv= "NA"  # turn off column clustering
           )            
 
